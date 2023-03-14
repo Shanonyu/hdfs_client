@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 if __name__ != "__main__": exit(0)
 
 from sys  import argv
@@ -121,7 +120,6 @@ while (not quit):
     l = len(args)
 
     match args[0]:
-
         case "append":
             if l < 3:
                 print("USAGE: append <local file> <remote file>")
@@ -131,6 +129,7 @@ while (not quit):
                 _path = path + args[2]
                 if client.content(_path, False) is not None:
                     if ospath.lexists(_localpath):
+                        # TODO: Read file 1024 bytes at a time to allow for bigger files
                         try:
                             data = b""
                             with client.read(_path) as remote_file:
@@ -235,6 +234,7 @@ while (not quit):
                     print("Could not create directory:")
                     print(e)
 
+        # TODO: Add command descriptions
         case "help":
             print("Available commands:")
             print("mkdir")
