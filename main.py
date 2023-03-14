@@ -195,8 +195,9 @@ while (not quit):
                     "(FILE)" if ospath.isfile(localpath + entry)
                     else "(DIRECTORY)")
                 print()
-            except:
-                print('Could not read', localpath)
+            except Exception as e:
+                print("Could not read local path:")
+                print(e)
 
         case "ls":
             try:
@@ -205,6 +206,7 @@ while (not quit):
                     print("\t", entry[0], f'({entry[1]["type"]})')
                 print()
             except Exception as e:
+                print("Could not read remote path:")
                 print(e)
 
         case "delete":
