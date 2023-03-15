@@ -14,7 +14,7 @@ def split_with_quotes(string: str) -> list[str]:
     l = len(string) - 1
     i = 0
 
-    while (i < l - 1):
+    while (i < l):
         if string[i] == " ":
             i += 1
             if string[i] == '"':
