@@ -2,8 +2,9 @@
 
 if __name__ != "__main__": exit(0)
 
-from sys  import argv
 from hdfs import InsecureClient
+
+from sys  import argv
 from os   import listdir
 from os   import path as ospath
 
@@ -22,21 +23,17 @@ def split_with_quotes(string: str) -> list[str]:
                 while (i < l and string[i] != '"'):
                     tmp += string[i]
                     i += 1
-                result.append(tmp)
-                tmp = ""
                 i += 1
             else:
                 while (i < l and string[i] != " "):
                     tmp += string[i]
                     i += 1
-                result.append(tmp)
-                tmp = ""
         else:
             while (i < l and string[i] != " "):
                 tmp += string[i]
                 i += 1
-            result.append(tmp)
-            tmp = ""
+        result.append(tmp)
+        tmp = ""
     return result
 
 def sanitize_remote_path(path, arg: str) -> str | bool:
