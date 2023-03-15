@@ -1,13 +1,11 @@
 # hdfs_client
 
-Simple CLI for hadoop's HDFS that uses python's [`hdfs`](https://hdfscli.readthedocs.io/en/latest/) library.
+Simple CLI for hadoop's HDFS ~~that uses python's [`hdfs`](https://hdfscli.readthedocs.io/en/latest/) library~~.
 
 ## Usage:
 
-Install dependencies:
-```console
-pip install 'hdfs==2.7.0'
-```
+~~Install dependencies:~~ This branch is supposed to be working without dependencies.
+
 Launching client:
 ```console
 ./main.py <HDFS host adress> <HDFS port> <username>
