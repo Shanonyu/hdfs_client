@@ -35,3 +35,8 @@ Launching client:
     Exit from CLI.
 - `help`
     Lists all commands.
+
+## TODO
+
+- Rewrite without dependencies.
+- File transfers on Windows cause http errors. (Windows users should consider uninstalling)

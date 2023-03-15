@@ -7,6 +7,7 @@ from hdfs import InsecureClient
 from sys  import argv
 from os   import listdir
 from os   import path as ospath
+from os   import name as osname
 
 def split_with_quotes(string: str) -> list[str]:
 
@@ -23,17 +24,21 @@ def split_with_quotes(string: str) -> list[str]:
                 while (i < l and string[i] != '"'):
                     tmp += string[i]
                     i += 1
+                result.append(tmp)
+                tmp = ""
                 i += 1
             else:
                 while (i < l and string[i] != " "):
                     tmp += string[i]
                     i += 1
+                result.append(tmp)
+                tmp = ""
         else:
             while (i < l and string[i] != " "):
                 tmp += string[i]
                 i += 1
-        result.append(tmp)
-        tmp = ""
+            result.append(tmp)
+            tmp = ""
     return result
 
 def sanitize_remote_path(path, arg: str) -> str | bool:
@@ -138,6 +143,9 @@ except Exception as e:
 quit = False
 path = "/"
 localpath = ospath.expanduser("~") + "/"
+# Hecking windows (does not work)
+if (osname == "nt"):
+    localpath = localpath.replace('\\', '/')
 
 while (not quit):
 
@@ -259,7 +267,7 @@ while (not quit):
                         client.makedirs(args[1], 600)
                     else:
                         args[1] = args[1].removeprefix(".").removeprefix("/")
-                        client.makedirs(path if path != "/" else "" + "/" + args[1], 600)
+                        client.makedirs(path + args[1] if path != "/" else "/" + args[1], 600)
 
                 except Exception as e:
                     print("Could not create directory:")
