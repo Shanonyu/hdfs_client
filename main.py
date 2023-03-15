@@ -11,7 +11,7 @@ def split_with_quotes(string: str) -> list[str]:
 
     tmp = ""
     result = []
-    l = len(string) - 1
+    l = len(string)
     i = 0
 
     while (i < l):
@@ -19,20 +19,21 @@ def split_with_quotes(string: str) -> list[str]:
             i += 1
             if string[i] == '"':
                 i += 1
-                while (string[i] != '"' and i < l):
+                while (i < l and string[i] != '"'):
                     tmp += string[i]
                     i += 1
                 result.append(tmp)
                 tmp = ""
                 i += 1
             else:
-                while (string[i] != ' ' and i < l):
+                while (i < l and string[i] != " "):
                     tmp += string[i]
                     i += 1
                 result.append(tmp)
                 tmp = ""
         else:
-            while (string[i] != ' ' and i < l):
+            while (i < l and string[i] != " "):
+                print(l, i)
                 tmp += string[i]
                 i += 1
             result.append(tmp)
@@ -147,8 +148,8 @@ while (not quit):
     print(f"[loc: {localpath}]")
     print(f"[rem: {path}]")
     print(user, "# ", end="")
-    cmd = (input())
-    args = split_with_quotes(cmd)
+    _cmd = (input())
+    args = split_with_quotes(_cmd)
     l = len(args)
 
     match args[0]:
