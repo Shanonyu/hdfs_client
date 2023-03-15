@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# encoding UTF-8
 
 import requests as rq
 from json import loads
@@ -55,23 +57,6 @@ class InsecureClient:
     # NOTE: GET & PUT do not work if you didn't configure endpoint for TEMPORARY_REDIRECT
     def open(self, path):
         return self._get(path, "OPEN")
-    
-    @staticmethod
-    def test():
-        client = InsecureClient("http://94.198.128.80", "6969", "protoje")
-        print("==================LS==================")
-        print(client.ls("/"))
-        print("================STATUS================")
-        print(client.status("/user/protoje"))
-        print("================MKDIR=================")
-        print(client.mkdir("/user/protoje/testdir"))
-        print("================DELETE================")
-        print(client.delete("/user/protoje/testdir"))
-        print("=================OPEN================")
-        print(client.open("/user/protoje/test.txt"))
-
-InsecureClient.test()
-
 
 # http://<HOST>:<HTTP_PORT>/webhdfs/v1/<PATH>?user.name=<USER>&op=
 
