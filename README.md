@@ -37,4 +37,4 @@ Launching client:
 ## TODO
 
 - Rewrite without dependencies.
-- File transfers on Windows cause http errors. (Windows users should consider uninstalling)
+- ~~File transfers on Windows cause http errors. (Windows users should consider uninstalling)~~ File transfers cause errors when you don't have proper node's IP adress configured.
