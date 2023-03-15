@@ -156,6 +156,8 @@ while (not quit):
     args = split_with_quotes(_cmd)
     l = len(args)
 
+    if not args: continue
+
     match args[0]:
         case "append":
             if l != 3:
@@ -187,21 +189,29 @@ while (not quit):
                 print("USAGE: put <file>")
                 print("Puts local file from current directory in current remote directory.")
             else:
-                if ospath.lexists(localpath + args[1]):
-                    file = client.upload(path, localpath + args[1], progress=upload_progress)
-                else:
-                    print("Could not find file specified.")
+                try:
+                    if ospath.lexists(localpath + args[1]):
+                        file = client.upload(path, localpath + args[1], progress=upload_progress)
+                    else:
+                        print("Could not find file specified.")
+                except Exception as e:
+                    print("Could not upload file specified:")
+                    print(e)
 
         case "get":
             if l != 2:
                 print("USAGE: get <file>")
                 print("Puts remote file in current directory in current local directory.")
             else:
-                _path = path + args[1]
-                if client.content(_path, False) is not None:
-                    file = client.download(path + args[1], localpath, progress=download_progress)
-                else:
-                    print("Could not find file specified.")
+                try:
+                    _path = path + args[1]
+                    if client.content(_path, False) is not None:
+                        file = client.download(path + args[1], localpath, progress=download_progress)
+                    else:
+                        print("Could not find file specified.")
+                except Exception as e:
+                    print("Could not download file specified:")
+                    print(e)
 
         case "lcd":
             if l != 2:
