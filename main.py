@@ -184,6 +184,7 @@ while (not quit):
                 else:
                     print("Could not find remote file specified.")
 
+        # NOTE: GET & PUT do not work if you didn't configure endpoint for TEMPORARY_REDIRECT
         case "put":
             if l != 2:
                 print("USAGE: put <file>")
@@ -197,6 +198,7 @@ while (not quit):
                 except Exception as e:
                     print("Could not upload file specified:")
                     print(e)
+                    print("Make sure you configured TEMPORARY_REDIRECT endpoint")
 
         case "get":
             if l != 2:
@@ -212,6 +214,7 @@ while (not quit):
                 except Exception as e:
                     print("Could not download file specified:")
                     print(e)
+                    print("Make sure you configured TEMPORARY_REDIRECT endpoint")
 
         case "lcd":
             if l != 2:

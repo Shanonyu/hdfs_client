@@ -2,9 +2,9 @@
 
 Simple CLI for hadoop's HDFS ~~that uses python's [`hdfs`](https://hdfscli.readthedocs.io/en/latest/) library~~.
 
-## Usage:
+This branch is supposed to be working without dependencies.
 
-~~Install dependencies:~~ This branch is supposed to be working without dependencies.
+## Usage:
 
 Launching client:
 ```console
