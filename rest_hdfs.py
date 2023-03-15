@@ -50,9 +50,12 @@ class InsecureClient:
     def mkdir(self, path: str, perm: int = 600):
         return self._put(path, "MKDIRS", f"&permission={perm}")
     
+    def touch(self, path):
+        return self._put(path, "CREATE")
+    
     # This works the same way as GET & PUT
     def append(self, path: str, data: bytes):
-        self._post(path, "APPEND")
+        return self._post(path, "APPEND", data)
     
     # NOTE: GET & PUT do not work if you didn't configure endpoint for TEMPORARY_REDIRECT
     def open(self, path):
@@ -63,7 +66,8 @@ class InsecureClient:
 # TODO:
 # upload    : put       ????
 # download  : get       ????
+# append    : append    ????
+# create    : touch     ????
 # delete    : delete    DONE
 # content   : ls        DONE
 # makedirs  : mkdir     DONE
-# append    : append    ????
