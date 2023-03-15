@@ -7,6 +7,38 @@ from hdfs import InsecureClient
 from os   import listdir
 from os   import path as ospath
 
+def split_with_quotes(string: str) -> list[str]:
+
+    tmp = ""
+    result = []
+    l = len(string) - 1
+    i = 0
+
+    while (i < l - 1):
+        if string[i] == " ":
+            i += 1
+            if string[i] == '"':
+                i += 1
+                while (string[i] != '"' and i < l):
+                    tmp += string[i]
+                    i += 1
+                result.append(tmp)
+                tmp = ""
+                i += 1
+            else:
+                while (string[i] != ' ' and i < l):
+                    tmp += string[i]
+                    i += 1
+                result.append(tmp)
+                tmp = ""
+        else:
+            while (string[i] != ' ' and i < l):
+                tmp += string[i]
+                i += 1
+            result.append(tmp)
+            tmp = ""
+    return result
+
 def sanitize_remote_path(path, arg: str) -> str | bool:
 
     if arg != "/": arg = arg.removesuffix("/")
@@ -116,12 +148,12 @@ while (not quit):
     print(f"[rem: {path}]")
     print(user, "# ", end="")
     cmd = (input())
-    args = cmd.split()
+    args = split_with_quotes(cmd)
     l = len(args)
 
     match args[0]:
         case "append":
-            if l < 3:
+            if l != 3:
                 print("USAGE: append <local file> <remote file>")
                 print("Appends contents from local file to remote file.")
             else:
@@ -146,9 +178,9 @@ while (not quit):
                     print("Could not find remote file specified.")
 
         case "put":
-            if l < 2:
+            if l != 2:
                 print("USAGE: put <file>")
-                print("Puts local file in remote directory.")
+                print("Puts local file from current directory in current remote directory.")
             else:
                 if ospath.lexists(localpath + args[1]):
                     file = client.upload(path, localpath + args[1], progress=upload_progress)
@@ -156,9 +188,9 @@ while (not quit):
                     print("Could not find file specified.")
 
         case "get":
-            if l < 2:
+            if l != 2:
                 print("USAGE: get <file>")
-                print("Puts remote file in local directory.")
+                print("Puts remote file in current directory in current local directory.")
             else:
                 _path = path + args[1]
                 if client.content(_path, False) is not None:
@@ -167,7 +199,7 @@ while (not quit):
                     print("Could not find file specified.")
 
         case "lcd":
-            if l < 2:
+            if l != 2:
                 print("USAGE: lcd <dir>")
 
             else:
@@ -247,7 +279,7 @@ while (not quit):
             print("lls")
             print("cd")
             print("lcd")
-            print("q/quit/exit")
+            print("exit")
             print("help")
 
         case "q" | "quit" | "exit":
