@@ -33,7 +33,6 @@ def split_with_quotes(string: str) -> list[str]:
                 tmp = ""
         else:
             while (i < l and string[i] != " "):
-                print(l, i)
                 tmp += string[i]
                 i += 1
             result.append(tmp)
@@ -263,7 +262,7 @@ while (not quit):
                         client.makedirs(args[1], 600)
                     else:
                         args[1] = args[1].removeprefix(".").removeprefix("/")
-                        client.makedirs(path + "/" + args[1], 600)
+                        client.makedirs(path if path != "/" else "" + "/" + args[1], 600)
 
                 except Exception as e:
                     print("Could not create directory:")
