@@ -1,4 +1,4 @@
-from rest_hdfs import InsecureClient
+from rest_hdfs import Client
 from os import path as ospath
 
 def split_with_quotes(string: str) -> list[str]:
@@ -33,7 +33,7 @@ def split_with_quotes(string: str) -> list[str]:
             tmp = ""
     return result
 
-def sanitize_remote_path(client: InsecureClient, path: str, arg: str) -> str | bool:
+def sanitize_remote_path(client: Client, path: str, arg: str) -> str | bool:
 
     if arg != "/": arg = arg.removesuffix("/")
 

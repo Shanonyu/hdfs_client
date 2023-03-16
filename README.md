@@ -1,8 +1,6 @@
 # hdfs_client
 
-Simple CLI for hadoop's HDFS ~~that uses python's [`hdfs`](https://hdfscli.readthedocs.io/en/latest/) library~~.
-
-This branch is supposed to be working without dependencies.
+Simple dependless CLI for hadoop's HDFS.
 
 ## Usage:
 
@@ -36,5 +34,9 @@ Launching client:
 
 ## TODO
 
-- Rewrite without dependencies.
-- ~~File transfers on Windows cause http errors. (Windows users should consider uninstalling)~~ File transfers cause errors when you don't have proper node's IP adress configured.
+- [x] Rewrite without dependencies.
+- [ ] Finish implementing all methods as commands:
+    - `touch`
+    - `exists`
+    - `status`
+- [ ] Optimize uploading/downloading.

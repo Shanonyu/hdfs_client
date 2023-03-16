@@ -3,7 +3,7 @@
 
 if __name__ != "__main__": exit(0)
 
-from rest_hdfs import InsecureClient
+from rest_hdfs import Client
 from util      import sanitize_local_path, sanitize_remote_path, split_with_quotes
 
 from sys  import argv
@@ -22,7 +22,7 @@ port   = argv[2]
 user   = argv[3]
 
 print("Connecting:", adress + ":" + port, "as", user + "...")
-client = InsecureClient(adress, port, user)
+client = Client(adress, port, user)
 
 try:
     client.exists("/")

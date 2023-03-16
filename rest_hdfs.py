@@ -5,7 +5,7 @@ import requests as rq
 from json import loads
 
 # TODO: Proper error handling
-class InsecureClient:
+class Client:
     _adress: str
     _user:   str
     _api = "/webhdfs/v1"
