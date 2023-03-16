@@ -1,10 +1,9 @@
 # hdfs_client
 
-Simple dependless CLI for hadoop's HDFS.
+Simple CLI for hadoop's HDFS.
 
 ## Usage:
 
-Launching client:
 ```console
 ./main.py <HDFS host adress> <HDFS port> <username>
 ```

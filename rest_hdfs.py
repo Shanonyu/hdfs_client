@@ -8,7 +8,8 @@ from json import loads
 class Client:
     _adress: str
     _user:   str
-    _url: str
+    _url:    str
+
     _api = "/webhdfs/v1"
     _write_headers = {"Content-Type": "application/octet-stream"}
 

@@ -37,7 +37,7 @@ quit = False
 path = "/"
 localpath = ospath.expanduser("~") + "/"
 
-# Hecking windows (works)
+# Hecking windows
 if (osname == "nt"):
     localpath = localpath.replace('\\', '/')
 

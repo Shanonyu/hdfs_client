@@ -98,16 +98,3 @@ def sanitize_local_path(arg: str, localpath: str) -> str | bool:
             return False
 
     return localpath
-
-# Unused
-def upload_progress(path, bytes):
-    if bytes != -1:
-        print("\rUploaded", bytes, "bytes...\t", end="")
-    else:
-        print("\rUploaded file:", path, "\t")
-
-def download_progress(path, bytes):
-    if bytes != -1:
-        print("\rDownloaded", bytes, "bytes...\t", end="")
-    else:
-        print("\rDownloaded file:", path, "\t")
