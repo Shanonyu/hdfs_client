@@ -36,6 +36,7 @@ Launching client:
 
 - [x] Rewrite without dependencies.
 - [ ] Finish implementing all methods as commands:
+    - recursive for `delete`
     - `touch`
     - `exists`
     - `status`

@@ -70,15 +70,13 @@ class Client:
 
     def exists(self, path: str) -> bool:
         status = self._get(path, "GETFILESTATUS")
-        try:
+        if status:
             status = loads(status)
-            try:
-                status.get("FileStatuses")
-                return True
-            except:
+            if status.get("RemoteException"): 
                 return False
-        except:
-                return False
+            return True
+        else:
+            return False
 
     def ls(self, path: str) -> tuple[list, str]:
         files = loads(self._get(path, "LISTSTATUS"))

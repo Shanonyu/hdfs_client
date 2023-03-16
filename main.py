@@ -40,6 +40,7 @@ localpath = ospath.expanduser("~") + "/"
 if (osname == "nt"):
     localpath = localpath.replace('\\', '/')
 
+# TODO: Clean up
 while (not quit):
 
     print(f"[loc: {localpath}]")
@@ -65,10 +66,10 @@ while (not quit):
                         # NOTE: This doesn't support big files
                         try:
                             with open(_localpath) as local_file:
-                                    local_file_contents = local_file.read()
-                                    res, err = client.append(path, args[2], local_file_contents)
-                                    if err:
-                                        print(err)
+                                local_file_contents = local_file.read()
+                                res, err = client.append(path, args[2], local_file_contents)
+                                if err:
+                                    print(err)
 
                         except Exception as e:
                             print("Could not read files:")
@@ -85,8 +86,10 @@ while (not quit):
                 print("Puts local file from current directory in current remote directory.")
             else:
                 try:
-                    if ospath.lexists(localpath + args[1]):
-                        file = client.upload(path, localpath + args[1])
+                    _path = localpath + args[1]
+                    if ospath.lexists(_path):
+                        with open(_path) as file:
+                            client.upload(path, args[1], file)
                     else:
                         print("Could not find file specified.")
                 except Exception as e:
