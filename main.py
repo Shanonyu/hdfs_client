@@ -3,138 +3,29 @@
 
 if __name__ != "__main__": exit(0)
 
-from hdfs import InsecureClient
+from rest_hdfs import InsecureClient
+from util      import sanitize_local_path, sanitize_remote_path, split_with_quotes
 
 from sys  import argv
 from os   import listdir
 from os   import path as ospath
 from os   import name as osname
 
-def split_with_quotes(string: str) -> list[str]:
-
-    tmp = ""
-    result = []
-    l = len(string)
-    i = 0
-
-    while (i < l):
-        if string[i] == " ":
-            i += 1
-            if string[i] == '"':
-                i += 1
-                while (i < l and string[i] != '"'):
-                    tmp += string[i]
-                    i += 1
-                result.append(tmp)
-                tmp = ""
-                i += 1
-            else:
-                while (i < l and string[i] != " "):
-                    tmp += string[i]
-                    i += 1
-                result.append(tmp)
-                tmp = ""
-        else:
-            while (i < l and string[i] != " "):
-                tmp += string[i]
-                i += 1
-            result.append(tmp)
-            tmp = ""
-    return result
-
-def sanitize_remote_path(path, arg: str) -> str | bool:
-
-    if arg != "/": arg = arg.removesuffix("/")
-
-    if arg.startswith("//"):
-        path = "/"
-
-    elif arg == "..":
-        if path != "/":
-            _path = "/".join(path.split("/")[:-2]) + "/"
-            if _path == "": _path = "/"
-            if client.content(_path, False) is not None:
-                path = _path
-            else:
-                return False
-
-    elif arg.startswith("/"):
-        _path = arg.removesuffix("/") + "/"
-        if client.content(_path, False) is not None:
-            path = _path
-        else:
-            return False
-
-    else:
-        arg = arg.removeprefix(".").removeprefix("/")
-        _path = path + arg + "/"
-        if client.content(_path, False) is not None:
-            path = _path
-        else:
-            return False
-
-    return path
-
-def sanitize_local_path(arg: str, localpath: str) -> str | bool:
-
-    if arg != "/": arg = arg.removesuffix("/")
-    if arg.startswith("//"):
-        localpath = "/"
-
-    elif arg == "..":
-        if localpath != "/":
-            _path = "/".join(localpath.split("/")[:-2]) + "/"
-            if _path == "": _path = "/"
-            _ispath = ospath.lexists(_path)
-            if _ispath:
-                localpath = _path
-            else:
-                return False
-
-    elif arg.startswith("/") or arg == "/":
-        _path = ospath.lexists(arg)
-        if _path:
-            localpath = "/" if arg == "/" else arg + "/"
-        else:
-            return False
-
-    else:
-        arg = arg.removeprefix(".").removeprefix("/")
-        _path = ospath.lexists(localpath + arg)
-        if _path:
-            localpath = localpath + arg + "/"
-        else:
-            return False
-
-    return localpath
-
-def upload_progress(path, bytes):
-    if bytes != -1:
-        print("\rUploaded", bytes, "bytes...\t", end="")
-    else:
-        print("\rUploaded file:", path, "\t")
-
-def download_progress(path, bytes):
-    if bytes != -1:
-        print("\rDownloaded", bytes, "bytes...\t", end="")
-    else:
-        print("\rDownloaded file:", path, "\t")
-
 if len(argv) < 4:
     print(f"USAGE: {argv[0]} <address> <port> <user>")
     exit(0)
 
-address = argv[1]
-if not address.startswith("http"):
-    address = "http://" + address
+adress = argv[1]
+if not adress.startswith("http"):
+    adress = "http://" + adress
 port   = argv[2]
 user   = argv[3]
 
-print("Connecting:", address + ":" + port, "as", user + "...")
-client = InsecureClient(f"{address}:{port}", user)
+print("Connecting:", adress + ":" + port, "as", user + "...")
+client = InsecureClient(adress, port, user)
 
 try:
-    client.list("/", True)
+    client.exists("/")
 except Exception as e:
     print("Could not connect to HDFS:")
     print(e)
@@ -144,7 +35,8 @@ except Exception as e:
 quit = False
 path = "/"
 localpath = ospath.expanduser("~") + "/"
-# Hecking windows (does not work)
+
+# Hecking windows (works)
 if (osname == "nt"):
     localpath = localpath.replace('\\', '/')
 
@@ -153,7 +45,7 @@ while (not quit):
     print(f"[loc: {localpath}]")
     print(f"[rem: {path}]")
     print(user, "# ", end="")
-    _cmd = (input())
+    _cmd = input()
     args = split_with_quotes(_cmd)
     l = len(args)
 
@@ -167,16 +59,17 @@ while (not quit):
             else:
                 _localpath = localpath + args[1]
                 _path = path + args[2]
-                if client.content(_path, False) is not None:
+                if client.exists(_path):
                     if ospath.lexists(_localpath):
-                        # TODO: Read file 1024 bytes at a time to allow for bigger files
+                        # TODO: Read chunks at a time
+                        # NOTE: This doesn't support big files
                         try:
-                            data = b""
-                            with client.read(_path) as remote_file:
-                                with open(_localpath) as local_file:
-                                    data = remote_file.read() + local_file.read().encode("utf-8")
-                            with client.write(_path, overwrite=True) as writer:
-                                writer.write(data)
+                            with open(_localpath) as local_file:
+                                    local_file_contents = local_file.read()
+                                    res, err = client.append(path, args[2], local_file_contents)
+                                    if err:
+                                        print(err)
+
                         except Exception as e:
                             print("Could not read files:")
                             print(e)
@@ -185,7 +78,7 @@ while (not quit):
                 else:
                     print("Could not find remote file specified.")
 
-        # NOTE: GET & PUT do not work if you didn't configure endpoint for TEMPORARY_REDIRECT
+        # NOTE: GET & PUT do not work if you didn't configure dataNode IP
         case "put":
             if l != 2:
                 print("USAGE: put <file>")
@@ -193,13 +86,12 @@ while (not quit):
             else:
                 try:
                     if ospath.lexists(localpath + args[1]):
-                        file = client.upload(path, localpath + args[1], progress=upload_progress)
+                        file = client.upload(path, localpath + args[1])
                     else:
                         print("Could not find file specified.")
                 except Exception as e:
                     print("Could not upload file specified:")
                     print(e)
-                    print("Make sure you configured TEMPORARY_REDIRECT endpoint")
 
         case "get":
             if l != 2:
@@ -208,8 +100,8 @@ while (not quit):
             else:
                 try:
                     _path = path + args[1]
-                    if client.content(_path, False) is not None:
-                        file = client.download(path + args[1], localpath, progress=download_progress)
+                    if client.exists(_path):
+                        file = client.download(path, args[1], localpath)
                     else:
                         print("Could not find file specified.")
                 except Exception as e:
@@ -232,7 +124,7 @@ while (not quit):
             if l < 2:
                 print("USAGE: cd <dir>")
             else:
-                _path = sanitize_remote_path(path, args[1])
+                _path = sanitize_remote_path(client, path, args[1])
                 if _path:
                     path = _path
                 else:
@@ -251,25 +143,19 @@ while (not quit):
                 print(e)
 
         case "ls":
-            try:
-                print("\n", path)
-                for entry in client.list(path, True):
-                    print("\t", entry[0], f'({entry[1]["type"]})')
-                print()
-            except Exception as e:
-                print("Could not read remote path:")
-                print(e)
+            files, err = client.ls(path)
+            if err:
+                print(err)
+                continue
+            for entry in files:
+                print("\t", entry["pathSuffix"], f'({entry["type"]})')
 
         case "delete":
             if l < 2:
                 print("USAGE: delete <file>")
             else:
-                try:
-                    if not client.delete(path + str(args[1])):
-                        print(args[1], "does not exist.")
-                except Exception as e:
-                    print("Could not delete", args[1] + ":")
-                    print(e)
+                if not client.delete(path, args[1]):
+                    print(args[1], "does not exist.")
 
         case "mkdir":
             if l < 2:
@@ -278,10 +164,10 @@ while (not quit):
                 try:
                     args[1] = args[1].removesuffix("/")
                     if args[1].startswith("/"):
-                        client.makedirs(args[1], 600)
+                        client.mkdir(args[1])
                     else:
                         args[1] = args[1].removeprefix(".").removeprefix("/")
-                        client.makedirs(path + args[1] if path != "/" else "/" + args[1], 600)
+                        client.mkdir(path + args[1] if path != "/" else "/" + args[1])
 
                 except Exception as e:
                     print("Could not create directory:")
