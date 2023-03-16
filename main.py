@@ -71,7 +71,7 @@ while (not quit):
                                 if err:
                                     print(err)
                         except Exception as e:
-                            print("Could not read files:")
+                            print("Could not append files:")
                             print(e)
                     else:
                         print("Could not find local file specified.")

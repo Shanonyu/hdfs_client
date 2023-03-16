@@ -3,6 +3,7 @@ from os import path as ospath
 
 def split_with_quotes(string: str) -> list[str]:
 
+    string = string.strip()
     tmp = ""
     result = []
     l = len(string)

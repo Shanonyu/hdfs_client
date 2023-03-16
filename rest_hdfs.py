@@ -4,7 +4,6 @@
 import requests as rq
 from json import loads
 
-# TODO: Proper error handling
 class Client:
     _adress: str
     _user:   str
@@ -47,11 +46,11 @@ class Client:
 
         return content
 
-    def _put(self, path: str, op: str, args: str = None, data: bytes = None) -> bytes:
-        args = args or ""
+    def _put(self, path: str, op: str, args: str = "", data: bytes = None) -> bytes:
+
         headers = Client._write_headers if data else None
 
-        url = self._url + path + f"?ser.name={self._user}&op={op}" + args
+        url = self._url + path + f"?user.name={self._user}&op={op}" + args
 
         with rq.put(url, data, headers=headers) as res:
             content = res.content
@@ -120,10 +119,10 @@ class Client:
             return (True, None)
 
     # TODO: Upload a chunk at a time
-    def upload(self, path, filename: str, data: bytes) -> tuple[bool, str]:
+    def upload(self, path: str, filename: str, data: bytes) -> tuple[bool, str]:
         """-> (success, error)"""
         result = self._put(path + filename, "CREATE", data=data)
-        err = result if result else None
+        err = loads(result) if result else None
         if err:
             err = err.get("RemoteException").get("message")
         return (not result or None, err)
