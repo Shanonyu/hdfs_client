@@ -11,7 +11,8 @@ from os   import listdir
 from os   import path as ospath
 from os   import name as osname
 
-if len(argv) < 4:
+if len(argv) != 4:
+    print("Python HDFS command line interface")
     print(f"USAGE: {argv[0]} <address> <port> <user>")
     exit(0)
 
@@ -29,7 +30,7 @@ try:
 except Exception as e:
     print("Could not connect to HDFS:")
     print(e)
-    print("Check if address and port are valid.")
+    print("Check if adress is correct.")
     exit(1)
 
 quit = False
@@ -40,11 +41,10 @@ localpath = ospath.expanduser("~") + "/"
 if (osname == "nt"):
     localpath = localpath.replace('\\', '/')
 
-# TODO: Clean up
 while (not quit):
 
-    print(f"[loc: {localpath}]")
-    print(f"[rem: {path}]")
+    print(f"[hdfs: {path}]")
+    print(f"[user: {localpath}]")
     print(user, "# ", end="")
     _cmd = input()
     args = split_with_quotes(_cmd)
@@ -70,7 +70,6 @@ while (not quit):
                                 res, err = client.append(path, args[2], local_file_contents)
                                 if err:
                                     print(err)
-
                         except Exception as e:
                             print("Could not read files:")
                             print(e)
@@ -95,6 +94,7 @@ while (not quit):
                 except Exception as e:
                     print("Could not upload file specified:")
                     print(e)
+                    print("Make sure you configured dataNode IP")
 
         case "get":
             if l != 2:
@@ -110,12 +110,11 @@ while (not quit):
                 except Exception as e:
                     print("Could not download file specified:")
                     print(e)
-                    print("Make sure you configured TEMPORARY_REDIRECT endpoint")
+                    print("Make sure you configured dataNode IP")
 
         case "lcd":
             if l != 2:
                 print("USAGE: lcd <dir>")
-
             else:
                 _path = sanitize_local_path(args[1], localpath)
                 if _path:
@@ -137,21 +136,27 @@ while (not quit):
             try:
                 print("\n", localpath)
                 for entry in listdir(localpath):
-                    print("\t", entry,
-                    "(FILE)" if ospath.isfile(localpath + entry)
-                    else "(DIRECTORY)")
+                    _type = "FILE\t" if ospath.isfile(localpath + entry) else "DIRECTORY"
+                    print("\t", _type, "\t", entry)
                 print()
             except Exception as e:
                 print("Could not read local path:")
                 print(e)
 
         case "ls":
-            files, err = client.ls(path)
+            files, empty, err = client.ls(path)
             if err:
                 print(err)
                 continue
+            print("\n", path)
+            if empty:
+                continue
+            # This is weird
             for entry in files:
-                print("\t", entry["pathSuffix"], f'({entry["type"]})')
+                _type = entry["type"]
+                __type = "FILE\t" if _type == "FILE" else _type
+                print("\t", __type, "\t", entry["pathSuffix"])
+            print()
 
         case "delete":
             if l < 2:
@@ -164,31 +169,29 @@ while (not quit):
             if l < 2:
                 print("USAGE: mkdir <directory>")
             else:
-                try:
-                    args[1] = args[1].removesuffix("/")
-                    if args[1].startswith("/"):
-                        client.mkdir(args[1])
-                    else:
-                        args[1] = args[1].removeprefix(".").removeprefix("/")
-                        client.mkdir(path + args[1] if path != "/" else "/" + args[1])
-
-                except Exception as e:
-                    print("Could not create directory:")
-                    print(e)
+                args[1] = args[1].removesuffix("/")
+                _path = ""
+                if args[1].startswith("/"):
+                    _path = args[1]
+                else:
+                    args[1] = args[1].removeprefix(".").removeprefix("/")
+                    _path = path + args[1] if path != "/" else "/" + args[1]
+                if not client.mkdir(_path):
+                    print("Could not create remote directory.")
 
         # TODO: Add command descriptions
         case "help":
             print("Available commands:")
-            print("mkdir")
-            print("delete")
-            print("put")
-            print("get")
-            print("ls")
-            print("lls")
-            print("cd")
-            print("lcd")
-            print("exit")
-            print("help")
+            print("\tmkdir")
+            print("\tdelete")
+            print("\tput")
+            print("\tget")
+            print("\tls")
+            print("\tlls")
+            print("\tcd")
+            print("\tlcd")
+            print("\texit")
+            print("\thelp")
 
         case "q" | "quit" | "exit":
             quit = True
