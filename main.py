@@ -14,7 +14,7 @@ from os   import name as osname
 if len(argv) != 4:
     print("Python HDFS command line interface")
     print(f"USAGE: {argv[0]} <address> <port> <user>")
-    exit(0)
+    exit(1)
 
 adress = argv[1]
 if not adress.startswith("http"):
@@ -33,7 +33,6 @@ except Exception as e:
     print("Check if adress is correct.")
     exit(1)
 
-quit = False
 path = "/"
 localpath = ospath.expanduser("~") + "/"
 
@@ -41,11 +40,12 @@ localpath = ospath.expanduser("~") + "/"
 if (osname == "nt"):
     localpath = localpath.replace('\\', '/')
 
-while (not quit):
+# TODO: Make use of path sanitizing functions for all commands
+while (True):
 
     print(f"[hdfs: {path}]")
     print(f"[user: {localpath}]")
-    print(user, "# ", end="")
+    print(user + " # ", end="")
     _cmd = input()
     args = split_with_quotes(_cmd)
     l = len(args)
@@ -78,7 +78,6 @@ while (not quit):
                 else:
                     print("Could not find remote file specified.")
 
-        # NOTE: GET & PUT do not work if you didn't configure dataNode IP
         case "put":
             if l != 2:
                 print("USAGE: put <file>")
@@ -116,7 +115,7 @@ while (not quit):
             if l != 2:
                 print("USAGE: lcd <dir>")
             else:
-                _path = sanitize_local_path(args[1], localpath)
+                _path = sanitize_local_path(localpath, args[1])
                 if _path:
                     localpath = _path
                 else:
@@ -126,7 +125,7 @@ while (not quit):
             if l < 2:
                 print("USAGE: cd <dir>")
             else:
-                _path = sanitize_remote_path(client, path, args[1])
+                _path = sanitize_remote_path(path, args[1], client)
                 if _path:
                     path = _path
                 else:
@@ -194,8 +193,8 @@ while (not quit):
             print("\thelp")
 
         case "q" | "quit" | "exit":
-            quit = True
             print("Quitting...")
+            exit(0)
 
         case _:
             print("Unknown command:", args[0])

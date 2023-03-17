@@ -2,6 +2,7 @@ from rest_hdfs import Client
 from os import path as ospath
 
 def split_with_quotes(string: str) -> list[str]:
+    """hello world \"wait i meant\" sailor -> [\"hello\", \"world\", \"wait i meant\", \"sailor\"]"""
 
     string = string.strip()
     tmp = ""
@@ -34,68 +35,76 @@ def split_with_quotes(string: str) -> list[str]:
             tmp = ""
     return result
 
-def sanitize_remote_path(client: Client, path: str, arg: str) -> str | bool:
+# TODO: This could be Client class' method (classes >:c)
+def sanitize_remote_path(current_path: str, new_path: str, client: Client) -> str | None:
+    """Returns new path if remote path exists. Returns `None` if remote path is not valid."""
 
-    if arg != "/": arg = arg.removesuffix("/")
+    if new_path != "/": new_path = new_path.removesuffix("/")
 
-    if arg.startswith("//"):
-        path = "/"
+    if new_path.startswith("//"):
+        current_path = "/"
 
-    elif arg == "..":
-        if path != "/":
-            _path = "/".join(path.split("/")[:-2]) + "/"
+    # Go up one level ..
+    elif new_path == "..":
+        if current_path != "/":
+            _path = "/".join(current_path.split("/")[:-2]) + "/"
             if _path == "": _path = "/"
             if client.exists(_path):
-                path = _path
+                current_path = _path
             else:
-                return False
+                return None
 
-    elif arg.startswith("/"):
-        _path = arg.removesuffix("/") + "/"
+    # Absolute path /
+    elif new_path.startswith("/"):
+        _path = new_path.removesuffix("/") + "/"
         if client.exists(_path):
-            path = _path
+            current_path = _path
         else:
-            return False
+            return None
 
+    # Relative path ./ or no prefix
     else:
-        arg = arg.removeprefix(".").removeprefix("/")
-        _path = path + arg + "/"
+        new_path = new_path.removeprefix(".").removeprefix("/")
+        _path = current_path + new_path + "/"
         if client.exists(_path):
-            path = _path
+            current_path = _path
         else:
-            return False
+            return None
 
-    return path
+    return current_path
 
-def sanitize_local_path(arg: str, localpath: str) -> str | bool:
+def sanitize_local_path(current_path: str, new_path: str) -> str | None:
+    """Returns new path if local path exists. Returns `None` if path is not valid."""
+    if new_path != "/": new_path = new_path.removesuffix("/")
+    if new_path.startswith("//"):
+        current_path = "/"
 
-    if arg != "/": arg = arg.removesuffix("/")
-    if arg.startswith("//"):
-        localpath = "/"
-
-    elif arg == "..":
-        if localpath != "/":
-            _path = "/".join(localpath.split("/")[:-2]) + "/"
+    # Go up one level ..
+    elif new_path == "..":
+        if current_path != "/":
+            _path = "/".join(current_path.split("/")[:-2]) + "/"
             if _path == "": _path = "/"
             _ispath = ospath.lexists(_path)
             if _ispath:
-                localpath = _path
+                current_path = _path
             else:
-                return False
+                return None
 
-    elif arg.startswith("/") or arg == "/":
-        _path = ospath.lexists(arg)
+    # Absolute path /
+    elif new_path.startswith("/") or new_path == "/":
+        _path = ospath.lexists(new_path)
         if _path:
-            localpath = "/" if arg == "/" else arg + "/"
+            current_path = "/" if new_path == "/" else new_path + "/"
         else:
-            return False
+            return None
 
+    # Relative path ./ or no prefix
     else:
-        arg = arg.removeprefix(".").removeprefix("/")
-        _path = ospath.lexists(localpath + arg)
+        new_path = new_path.removeprefix(".").removeprefix("/")
+        _path = ospath.lexists(current_path + new_path)
         if _path:
-            localpath = localpath + arg + "/"
+            current_path = current_path + new_path + "/"
         else:
-            return False
+            return None
 
-    return localpath
+    return current_path
