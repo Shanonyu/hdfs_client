@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# encoding UTF-8
+
 from rest_hdfs import Client
 from os import path as ospath
 
