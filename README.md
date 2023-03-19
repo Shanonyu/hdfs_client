@@ -4,7 +4,7 @@ Simple CLI for hadoop's HDFS.
 
 ### UPDATE 03/19/23
 
-Found a major design flaw, should rewrite most of the methods using two-step requests (datanode -> namenode).
+Found a major design flaw, should rewrite most of the methods using two-step requests (namenode -> datanode).
 
 ## Usage:
 
