@@ -2,6 +2,10 @@
 
 Simple CLI for hadoop's HDFS.
 
+### UPDATE 03/19/23
+
+Found a major design flaw, should rewrite most of the methods using two-step requests (datanode -> namenode).
+
 ## Usage:
 
 ```console
@@ -33,6 +37,7 @@ Simple CLI for hadoop's HDFS.
 
 ## TODO
 
+- [ ] Rewrite using two-step requests.
 - [x] Rewrite without dependencies.
 - [ ] Finish implementing all methods as commands:
     - recursive for `delete`
