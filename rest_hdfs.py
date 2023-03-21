@@ -4,6 +4,10 @@
 import requests as rq
 from json import loads
 
+# TODO:
+# Make error checking based on response codes and not on response body
+# Should probably be at least 1 nanosecond faster
+
 class Client:
     _adress: str
     _user:   str
@@ -21,7 +25,8 @@ class Client:
 
         url = self._url + path + f"?user.name={self._user}&op={op}"
 
-        with rq.get(url) as res:
+        # Submit a HTTP GET request with automatically following redirects.
+        with rq.get(url, allow_redirects=True) as res:
             content = res.content
 
         return content
@@ -43,9 +48,11 @@ class Client:
         if data:
             headers = Client._write_headers
 
-            with rq.post(url, headers=headers, allow_redirects=False) as res:
+            # Submit a HTTP POST request without automatically following redirects and without sending the file data.
+            with rq.post(url, allow_redirects=False) as res:
                 url = res.headers["Location"]
 
+            # Submit another HTTP POST request using the URL in the Location header with the file data to be appended.
             with rq.post(url, data, headers=headers) as res:
                 content = res.content
 
@@ -62,9 +69,12 @@ class Client:
 
         if data:
             headers = Client._write_headers
-            with rq.put(url, headers=headers, allow_redirects=False) as res:
+
+            # Submit a HTTP PUT request without automatically following redirects and without sending the file data.
+            with rq.put(url, allow_redirects=False) as res:
                 url = res.headers["Location"]
 
+            # Submit another HTTP PUT request using the URL in the Location header with the file data to be written.
             with rq.put(url, data, headers=headers) as res:
                 content = res.content
 
