@@ -37,7 +37,6 @@ Found a major design flaw, should rewrite most of the methods using two-step req
 
 ## TODO
 
-- [ ] Rewrite using two-step requests.
 - [x] Rewrite without dependencies.
 - [ ] Finish implementing all methods as commands:
     - recursive for `delete`
