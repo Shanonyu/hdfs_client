@@ -38,21 +38,39 @@ class Client:
 
     def _post(self, path: str, op: str, data: bytes = None) -> bytes:
 
-        headers = Client._write_headers if data else None
         url = self._url + path + f"?user.name={self._user}&op={op}"
 
-        with rq.post(url, data, headers=headers) as res:
+        if data:
+            headers = Client._write_headers
+
+            with rq.post(url, headers=headers, allow_redirects=False) as res:
+                url = res.headers["Location"]
+
+            with rq.post(url, data, headers=headers) as res:
+                content = res.content
+
+            return content
+
+        with rq.post(url) as res:
             content = res.content
 
         return content
 
     def _put(self, path: str, op: str, args: str = "", data: bytes = None) -> bytes:
 
-        headers = Client._write_headers if data else None
-
         url = self._url + path + f"?user.name={self._user}&op={op}" + args
 
-        with rq.put(url, data, headers=headers) as res:
+        if data:
+            headers = Client._write_headers
+            with rq.put(url, headers=headers, allow_redirects=False) as res:
+                url = res.headers["Location"]
+
+            with rq.put(url, data, headers=headers) as res:
+                content = res.content
+
+            return content
+
+        with rq.put(url) as res:
             content = res.content
 
         return content
