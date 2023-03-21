@@ -26,7 +26,7 @@ if __name__ == "__main__":
     client = Client(adress, port, user)
 
     try:
-        client.exists("/")
+        if not client.exists("/"): raise Exception("Root path does not exist")
     except Exception as e:
         print("Could not connect to HDFS:")
         print(e)
